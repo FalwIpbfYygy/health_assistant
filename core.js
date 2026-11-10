@@ -53,6 +53,18 @@ var RAW=[
 ];
 var E=RAW.map(function(r){return {id:r[0],name:r[1],en:r[2],group:r[3],equip:r[4],place:r[5]==='g'?['gym']:(r[5]==='h'?['home']:['gym','home']),level:r[6],compound:!!r[7],risky:!!r[8],target:r[9],cues:r[10].split('|'),mistakes:[r[11]]};});
 var EX_BY_ID={};E.forEach(function(e){EX_BY_ID[e.id]=e;});
+
+/* === v1.1 derived exercise metadata (public build, pure functions) === */
+var EQUIP_MAP=[['\u6760\u94c3','barbell'],['\u54d1\u94c3','dumbbell'],['\u5f92\u624b','bodyweight'],['\u56fa\u5b9a\u5668\u68b0','machine'],['\u9f99\u95e8\u67b6','cable'],['\u5f39\u529b\u5e26','band'],['\u5f15\u4f53\u8f85\u52a9\u5668','machine'],['\u8dd1\u6b65\u673a','cardio'],['\u6237\u5916','cardio'],['\u5668\u68b0','machine']];
+function equipKeys(e){var s=(e&&e.equip)||'',out=[];EQUIP_MAP.forEach(function(p){if(s.indexOf(p[0])>=0&&out.indexOf(p[1])<0)out.push(p[1]);});return out.length?out:['other'];}
+function levelName(n){return n===1?'\u5165\u95e8':(n===2?'\u8fdb\u9636':'\u9ad8\u9636');}
+function inputMode(e){if(e&&e.group==='cardio')return 'time';var ks=equipKeys(e);var soft=ks.every(function(k){return k==='bodyweight'||k==='band';});return soft?'reps':'weight';}
+function needsWeight(e){return inputMode(e)==='weight';}
+function demoOf(e){return 'assets/demo/'+((e&&e.id)?e.id:'_missing')+'.svg';}
+var PREP={chest:'\u80a1\u80e1\u540e\u6536\u4e0b\u6c89\uff0c\u7a7a\u6746/\u6700\u8f7b\u6863\u7a7a\u4e3e 1 \u7ec4\uff0c\u5148\u6fc0\u6d3b\u80f8\u4e0e\u4e09\u5934\u3002',back:'\u5148\u505a 2 \u6b21\u80a1\u80e1\u540e\u6536\u4e0b\u6c89\uff0c\u6700\u8f7b\u6863\u62c9 1 \u7ec4\u627e\u56de\u80cc\u90e8\u53d1\u529b\u611f\u3002',shoulder:'\u80a9\u7ed5\u73af + \u6700\u8f7b\u54d1\u94c3\u7a7a\u4e3e 1 \u7ec4\uff0c\u8116\u5b50\u653e\u677e\u3001\u4e0d\u8018\u80a9\u3002',leg:'\u5f92\u624b\u6df1\u8e72\u4e0e\u81c0\u6865\u5404 10 \u6b21\u70ed\u8eab\uff0c\u819d\u76d6\u5bf9\u51c6\u811a\u5c16\u3002',arm:'\u6700\u8f7b\u91cd\u91cf\u5c48\u4f38 1 \u7ec4\uff0c\u628a\u81c2\u5173\u8282\u6d3b\u52a8\u5f00\u3002',core:'\u732b\u725b 8 \u6b21 + 90/90 \u547c\u5438\uff0c\u8170\u80cc\u5148\u538b\u5b9e\u5730\u9762\u3002',cardio:'\u5761\u5ea6/\u963b\u529b\u4ece\u6700\u4f4e\u6863\u8d77\u6b65\uff0c\u5f3a\u5ea6\u4ee5\u80fd\u8bf4\u5b8c\u6574\u53e5\u5b50\u4e3a\u51c6\u3002'};
+function prepOf(e){return PREP[e&&e.group]||'\u5148\u7528\u6700\u8f7b\u963b\u529b\u505a 1 \u7ec4\u70ed\u8eab\uff0c\u6fc0\u6d3b\u76ee\u6807\u90e8\u4f4d\u3002';}
+function planDisclaimer(p){p=p||{};if(p.level==='new')return '\u96f6\u57fa\u7840\uff1a\u81ea\u52a8\u6392\u9664\u6760\u94c3\u6df1\u8e72\u3001\u786c\u62c9\u7b49\u9ad8\u98ce\u9669\u52a8\u4f5c\uff0c\u7edf\u4e00\u964d\u5230 3 \u7ec4\uff1b\u524d\u4e24\u5468\u5f3a\u5ea6\u5c01\u5370\uff0c\u4e0d\u52a0\u91cd\u91cf\u3002';if(p.level==='pro')return '\u8fdb\u9636\uff1a\u5f00\u653e\u5168\u90e8\u52a8\u4f5c\uff08\u542b\u6760\u94c3\u6df1\u8e72\u3001\u786c\u62c9\u7b49\uff09\uff0c\u6309\u76ee\u6807\u5b89\u6392\u7ec4\u6570\u4e0e\u95f4\u6b47\u3002';return '\u6709\u57fa\u7840\uff1a\u590d\u5408\u52a8\u4f5c + \u5b64\u7acb\u52a8\u4f5c\u642d\u914d\uff0c\u6309\u76ee\u6807\u5b89\u6392\u7ec4\u6570\u4e0e\u95f4\u6b47\uff0c\u91cd\u91cf\u5faa\u5e8f\u6e10\u8fdb\u3002';}
+
 function clampInt(v,min,max,def){var n=parseInt(v,10);if(isNaN(n))return def;return n<min?min:(n>max?max:n);}
 function goalById(id){for(var i=0;i<GOALS.length;i++)if(GOALS[i].id===id)return GOALS[i];return GOALS[0];}
 function groupById(id){for(var i=0;i<GROUPS.length;i++)if(GROUPS[i].id===id)return GROUPS[i];return GROUPS[0];}
@@ -100,5 +112,5 @@ s.sessions=Array.isArray(raw.sessions)?raw.sessions.filter(function(x){return x&
 s.weights=Array.isArray(raw.weights)?raw.weights.filter(function(x){return x&&x.date&&!isNaN(Number(x.kg));}):[];
 if(raw.settings&&typeof raw.settings==='object')s.settings.restSec=clampInt(raw.settings.restSec,15,300,60);
 return s;}
-return {GROUPS:GROUPS,GOALS:GOALS,LEVELS:LEVELS,PLACES:PLACES,WEEKDAY:WEEKDAY,SPLITS:SPLITS,FOCUS_NAME:FOCUS_NAME,EXERCISES:E,EX_BY_ID:EX_BY_ID,validateProfile:validateProfile,generatePlan:generatePlan,pickExercises:pickExercises,goalById:goalById,groupById:groupById,exById:exById,dateKey:dateKey,weekdayIndex:weekdayIndex,isoWeekStart:isoWeekStart,volumeOf:volumeOf,streakOf:streakOf,weeklyVolume:weeklyVolume,lastLift:lastLift,escapeHtml:escapeHtml,clampInt:clampInt,emptyState:emptyState,normalizeState:normalizeState};
+return {GROUPS:GROUPS,GOALS:GOALS,LEVELS:LEVELS,PLACES:PLACES,WEEKDAY:WEEKDAY,SPLITS:SPLITS,FOCUS_NAME:FOCUS_NAME,EXERCISES:E,EX_BY_ID:EX_BY_ID,equipKeys:equipKeys,levelName:levelName,inputMode:inputMode,needsWeight:needsWeight,demoOf:demoOf,prepOf:prepOf,planDisclaimer:planDisclaimer,validateProfile:validateProfile,generatePlan:generatePlan,pickExercises:pickExercises,goalById:goalById,groupById:groupById,exById:exById,dateKey:dateKey,weekdayIndex:weekdayIndex,isoWeekStart:isoWeekStart,volumeOf:volumeOf,streakOf:streakOf,weeklyVolume:weeklyVolume,lastLift:lastLift,escapeHtml:escapeHtml,clampInt:clampInt,emptyState:emptyState,normalizeState:normalizeState};
 });

@@ -146,3 +146,15 @@ button{cursor:pointer;border:0;background:none;padding:0}
 /* noisy-gym fallback: full-screen 3s visual bell, auto dismiss, no tap needed */
 .rest-dock.ringing::before{content:"叮！下一组";position:fixed;inset:0;z-index:1;background:rgba(232,80,31,.22);box-shadow:inset 0 0 0 12px rgba(232,80,31,.5);pointer-events:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:30px;font-weight:800;letter-spacing:2px;text-shadow:0 3px 14px rgba(0,0,0,.35);animation:restFlash .42s ease-in-out 7 alternate}
 @keyframes restFlash{from{opacity:.5}to{opacity:1}}
+
+/* ===== v1.1 demo + filters + overlay mutex ===== */
+.demo-wrap{width:100%;max-width:260px;margin:2px auto 16px;border-radius:14px;overflow:hidden;background:#FBFCFB;border:1px solid var(--line)}
+.demo-img{display:block;width:100%;height:auto}
+.demo-fallback{display:none;align-items:center;justify-content:center;min-height:170px}
+.demo-fallback .body-svg{margin:0}
+.sub-filters{padding-top:0;padding-bottom:8px}
+.sub-filters .filter{font-size:11px;padding:5px 11px;background:#F4F8F6}
+.lv-mini{flex:none;font-size:10px;color:var(--brand);background:var(--soft);border-radius:6px;padding:2px 8px;font-weight:700}
+.set-row input.wide{width:96px}
+/* overlay mutex: when a sheet is open, hide the rest dock + timer so they never stack/cover buttons */
+body.sheet-open .rest-dock,body.sheet-open .timer-float{display:none!important}

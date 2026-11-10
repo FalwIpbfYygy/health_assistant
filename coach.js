@@ -87,9 +87,7 @@ function apply(reload){
  if(reload&&ok&&window.location&&window.location.reload)window.location.reload();
 }
 function auto(){
- var marked=false;
- try{marked=localStorage.getItem(MK)==='1';}catch(e){}
- if(!marked)apply(true);
+ /* public build: never overwrite anyone's profile/plan. New users go through the generic questionnaire; existing users keep their own plan. */
 }
 function badge(s){return '<span class="coach-tag">'+esc(s)+'</span>';}
 function exBlock(list){
@@ -102,8 +100,8 @@ function sec(title,body){return '<section class="coach-sec"><h3>'+esc(title)+'</
 function ul(arr){return '<ul class="coach-ul">'+arr.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';}
 function html(){
  var h=[];
- h.push('<div class="coach-hero"><div class="coach-kicker">零基础方案 · 强度封印版</div><h2>太弱了，非常弱。所以先把重量封死。</h2><p>零起步阶段别追重量。前两周唯一的任务是：肩胛稳住、离心控住、脖子放松。健身骗不了人，练多少得多少，所以这套方案不给你排满。</p></div>');
-h.push(sec('零基础起点','<p>这套方案按零起步设计：卧推从空杆开始、推肩从最轻档开始、引体只练离心、体态动作每次都带。你自己的实测数据不用写进网页，也不上传；记在「我的」页的体重记录和训练记录里就够了。</p><div class="note-bar">前两周强度封印，重量一律不加。动作做标准比做多重要。</div>'));
+ h.push('<div class="coach-hero"><div class="coach-kicker">新手入门 · 通用指南</div><h2>先练对，再练重。</h2><p>刚开始别急着追重量。前两周把动作做标准：肩胛稳住、离心控住、脖子放松。健身骗不了人，练多少得多少。</p></div>');
+h.push(sec('新手从这里开始','<p>刚开始建议从空杆 / 最轻档起步，推肩用最轻哑铃，引体先练离心，每次带上背部和肩袖稳定动作。重量不是起点，动作质量才是。</p><div class="note-bar">前两周先不加重量，把动作做标准比做多重要。</div>'));
  h.push(sec('先改这 3 个动作错误',ERRORS.map(function(e){return '<div class="coach-ex"><div class="coach-ex-h"><b>'+esc(e[0])+'</b><span>常见表现：'+esc(e[1])+'</span></div><p>'+esc(e[2])+'</p></div>';}).join('')+'<div class="note-bar">这三个不解决，加重量毫无意义——一大半是耸肩和失控漏掉的力，不是胸没力气。</div>'));
  h.push(sec('第一周训练计划','<div class="coach-sub">一周 2 次（周一 A / 周四 B），隔天；每次 40-50 分钟 = 热身 8 分钟 + 3 个动作约 28 分钟 + 收尾拉伸 8 分钟。周六体态专项可选。热身只用快走 5 分钟 + 肩绕环 / 猫牛 / 胸椎伸展。</div><h4>训练 A · 推 + 肩胛</h4>'+exBlock(A)+'<h4>训练 B · 拉 + 肩袖</h4>'+exBlock(B)+'<h4>体态专项（周六可选，状态差就跳过）</h4>'+exBlock(D)+'<div class="note-bar">两次都含体态动作（面拉 / 肩外旋），专门对抗肩胛前引和上斜方代偿。</div>'));
  h.push(sec('升级信号：一周一条，看得见才准升','<div class="coach-steps">'+UPGRADE.map(function(u,i){return '<div class="coach-step"><b>'+esc(u[0])+'</b><span>'+esc(u[1])+'</span><i>'+esc(u[2])+'</i></div>';}).join('')+'</div><div class="note-bar">第一周按 3 组封印；第 3 周稳了再升到 4 组。加重量必须是 2.5kg 不是 5kg，一次只改一样。</div>'));
@@ -112,8 +110,8 @@ h.push(sec('零基础起点','<p>这套方案按零起步设计：卧推从空�
  h.push(sec('蛋白公式：体重(kg) × 1.8g / 天','<p>体重(kg) × 1.8g，recomp 期要顶格。<b>4 个鸡蛋（约 26g）+ 3 份掌心大小的肉（每份 100-120g 熟重，约 70g）+ 1 杯奶 / 豆浆（8g）+ 1 份豆制品（12g）+ 主食青菜零头（14g）</b>。最简记法：每餐「1 掌心肉 + 1 个蛋」，再加早晚各 1 个蛋和 1 杯奶，基本就够。</p><h4>最低配版：完全不改点外卖的习惯，也照样进步</h4>'+ul(FALLBACK)+'<div class="note-bar">前两周的进步主要来自神经适应（动作变稳、空杆变轻），不是长肌肉，所以这个底线照样能让你看见变化。</div>'));
  h.push(sec('睡眠 / 恢复 / 状态差',ul(SLEEP)));
  h.push(sec('2 周后你应该达到的明确标准',ul(STANDARD)));
- h.push('<section class="coach-sec"><button class="btn btn-primary btn-block" type="button" data-coach="restore">恢复默认训练方案</button><div class="disclaimer">这套方案已设为默认：首次打开自动生效，「今天」页就是上面的动作和组数。设置里仍可「重新做问卷 / 换目标」回到通用计划；点上面按钮可随时切回来，训练记录不会丢。个人实测数据不写入本页，也不上传。</div></section>');
- h.push('<div class="coach-quote">弱有弱的路：把重量封死、把动作练对，前两周你唯一的任务是让肩膀别抢戏。坚持两个月，空杆就能当热身。</div>');
+ h.push('<section class="coach-sec"><div class="disclaimer">这是通用入门建议，仅供参考，不会改动你的训练计划或记录。要按自己的目标排计划，请在「设置」里重新做问卷；本页所有内容都在本地，不上传。</div></section>');
+ h.push('<div class="coach-quote">新手的路：把重量放轻、把动作练对，前两周只盯一件事——肩膀别抢戏。坚持两个月，空杆就能当热身。</div>');
  return h.join('');
 }
 function render(){var el=document.getElementById('v-coach');if(el)el.innerHTML=html();}
@@ -123,7 +121,7 @@ function strip(){
  var d=C.weekdayIndex(),p=null;
  try{p=JSON.parse(localStorage.getItem(SK)||'null');}catch(e){}
  var day=p&&p.plan&&p.plan.week?p.plan.week[d]:null;
- var txt='零基础方案 · '+(day&&!day.rest?esc(day.title):'今天休息 / 主动恢复')+' · 前两周不加重量';
+ var txt='新手入门指南 · 今天'+(day&&!day.rest?'练 '+esc(day.title):'休息 / 主动恢复');
  s.innerHTML='<span>'+txt+'</span><b>查看 ›</b>';
 }
 function sync(){
@@ -137,7 +135,6 @@ function boot(){
   var t=ev.target&&ev.target.closest?ev.target.closest('[data-tab],[data-coach],[id="coachStrip"]'):null;
   if(!t)return;
   if(t.getAttribute('data-tab')){curTab=t.getAttribute('data-tab');sync();return;}
-  if(t.getAttribute('data-coach')==='restore'){apply(true);return;}
   if(t.id==='coachStrip'){var b=document.querySelector('[data-tab="coach"]');if(b)b.click();}
  });
  if(window.MutationObserver){

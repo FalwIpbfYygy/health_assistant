@@ -97,7 +97,7 @@ rec.done=!rec.done;rec.ts=Date.now();save();renderToday();if(rec.done&&navigator
 function startTimer(sec){tmrLeft=C.clampInt(sec,15,300,60);$('timerFloat').hidden=false;$('timerNum').textContent=tmrLeft;
 clearInterval(tmr);tmr=setInterval(function(){tmrLeft--;$('timerNum').textContent=Math.max(tmrLeft,0);if(tmrLeft<=0){clearInterval(tmr);toast('休息结束，下一组');if(navigator.vibrate)navigator.vibrate([80,60,80]);}},1000);}
 function stopTimer(){clearInterval(tmr);$('timerFloat').hidden=true;}
-function render(){$('topTitle').textContent={today:'今天',plan:'训练计划',lib:'动作库',me:'我的',coach:'专属方案'}[tab];
+function render(){$('topTitle').textContent={today:'今天',plan:'训练计划',lib:'动作库',me:'我的',coach:'入门指南'}[tab];
 $('topSub').textContent=S.profile?(C.goalById(S.profile.goal).name+' · '+S.profile.days+' 天/周'):'先练对，再练重';
 ['today','plan','lib','me','coach'].forEach(function(t){$('v-'+t).hidden=t!==tab;});
 document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab);});

@@ -193,6 +193,23 @@ body.sheet-open .rest-dock,body.sheet-open .timer-float{display:none!important}
 .nt-warn{background:#FFF4EE;border-left:3px solid var(--accent);padding:11px 12px;border-radius:0 10px 10px 0;font-size:12px;color:#9A4B21;margin:12px 0;line-height:1.6}
 .nt-warn div{margin:4px 0}
 .nt-result-note{font-size:11px;color:var(--ink3);line-height:1.7;padding:11px 4px}
+
+/* ===== v1.3 P0/P1 fixes: optional body data, sets-first metrics, rest-day hero, single source plan ===== */
+.ob-optional{margin-top:14px}
+.ob-opt-label{font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:2px}
+.ob-opt-note{font-size:11px;color:var(--ink3);line-height:1.5;margin-bottom:10px}
+.ob-field{display:block;flex:1;min-width:0}
+.ob-field>span{display:block;font-size:12px;color:var(--ink2);font-weight:600;margin-bottom:5px}
+.ob-field .field{margin-bottom:0}
+.hero-rest{margin-top:14px;font-size:12px;opacity:.92;background:rgba(255,255,255,.16);border-radius:10px;padding:10px 12px;line-height:1.5}
+.hero-metric-note{font-size:10px;color:var(--ink3);margin-top:2px}
+.coach-week{margin-top:8px}
+.coach-week-row{display:flex;align-items:center;gap:12px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:6px}
+.coach-week-row b{width:38px;flex:none;color:var(--ink2);font-size:13px}
+.coach-week-row .cw-title{flex:1;font-size:12px;color:var(--ink)}
+.coach-week-row .cw-sub{font-size:10px;color:var(--ink3)}
+.coach-week-row.today{border-color:var(--brand);background:var(--soft)}
+.coach-week-row.today b{color:var(--brand)}
 .nt-flag{background:#FDECEA;border:1px solid #F3C4BD;color:#9E2E22;border-radius:12px;padding:13px;margin-bottom:12px;font-size:12px;line-height:1.65}
 .nt-flag b{display:block;font-size:13px;margin-bottom:6px}
 .nt-summary{background:var(--soft);border-radius:12px;padding:13px;font-size:13px;line-height:1.7;color:var(--ink);margin-bottom:14px}

@@ -1,23 +1,8 @@
 (function(){
 'use strict';
-var C=window.FitCore,SK='xulian.v1',MK='xulian.coach.v1';
-var P={goal:'muscle',level:'new',place:'gym',days:3,height:170,weight:65,coach:true};
+var C=window.FitCore,SK='xulian.v1';
 function esc(s){return C.escapeHtml(s);}
-var A=[
- {id:'bb_bench',sets:3,reps:'8',rest:90,load:'空杆 / 固定器械最轻档',cue:['肩胛后收压实，全程不耸肩','脖子放松、下巴微收','眼睛盯天花板一个固定点','下放数 3 秒，不顶力竭']},
- {id:'db_shoulder_press',sets:3,reps:'8',rest:90,load:'最轻档哑铃',cue:['别死抓哑铃，多用肩的力量推','头不偏、看镜中眉心','下放 3 秒','第 3 组做不满 8 下就停，不补']},
- {id:'face_pull',sets:3,reps:'12',rest:60,load:'弹力带 / 龙门架最轻档',cue:['拉到眉心、肘不高于肩','脖子不往前探','回放 3 秒','要肩胛骨中间酸，不是脖子酸']}
-];
-var B=[
- {id:'assisted_pullup',sets:4,reps:'3',rest:90,load:'辅助引体，只练离心',cue:['踩辅助到顶，4 秒慢放','不许掉下来','肩胛先下沉再放','脖子放松、眼看正前方一点']},
- {id:'seated_row',sets:3,reps:'10',rest:90,load:'器械最轻档',cue:['不耸肩、不后仰借力','拉到下腹停 1 秒','回放 3 秒']},
- {id:'band_external_rotation',sets:3,reps:'12',rest:60,load:'弹力带最轻档 / 靠墙天使',cue:['大臂贴身不抬、肩不往上跑','肋骨别翻','宁可少做几次也别快']}
-];
-var D=[
- {id:'face_pull',sets:3,reps:'12',rest:60,load:'弹力带最轻档',cue:['不耸肩','回放 3 秒','要中背酸']},
- {id:'band_external_rotation',sets:3,reps:'12',rest:60,load:'弹力带最轻档',cue:['大臂贴身','肩不往上跑']},
- {id:'dead_bug',sets:3,reps:'8',rest:60,load:'徒手',cue:['腰贴地不塌','慢，不甩腿','核心不稳就减次数']}
-];
+/* v1.3: 移除硬编码的教练 A/B/D 计划。计划唯一真相源 = 用户问卷生成的 S.plan（见 app.js/core.js）。入门页只保留通用建议与动态展示用户自己的计划。 */
 var ERRORS=[
  ['耸肩 / 斜方肌代偿','肩膀往上缩、斜方肌抢戏、脖子先酸','每组启动前先做 2 次肩胛后收下沉（把肩胛骨塞进后背口袋），保持住再推；手别死抓；脖子先酸就停，这组不算'],
  ['脖子紧、头偏、眼睛乱飘','头歪、眼神乱飘、全身绷紧','全程只盯一个固定点（镜中眉心或器械正前方），下巴微收做双下巴；轨迹用余光看，不转头去追'],
@@ -68,33 +53,17 @@ var STANDARD=[
  '4 次训练全勤（2 次/周 × 2 周），训练当晚更容易放松下来。',
  '体重不要求涨，允许上下 1kg；看镜子肩打开的程度和训练记录，不看秤。'
 ];
-function plan(){
- var w=C.WEEKDAY.map(function(name,d){
-  var src=null,title='休息 / 主动恢复',note='散步 20 分钟，或做 8 分钟拉伸 + 3 组面拉（最低配训练，算打卡）。';
-  if(d===0){src=A;title='训练 A · 推 + 肩胛';note='强度封印：空杆 / 最轻档，前两周不加重量。今天只练 3 个动作，做标准比做多重要。';}
-  if(d===3){src=B;title='训练 B · 拉 + 肩袖';note='引体只练离心 4 秒慢放，不要求拉上去。肩不耸、脖子不紧，这组才算。';}
-  if(d===5){src=D;title='体态专项（可选）';note='状态差就跳过，不算断。10-15 分钟，全部最轻档。';}
-  return {day:d,weekday:name,rest:!src,title:title,focus:null,items:(src||[]).map(function(x,i){return {exId:x.id,order:i,sets:x.sets,reps:x.reps,rest:x.rest,load:x.load};}),note:note};
- });
- return {id:'coach-zero-to-muscle-v1',profile:P,week:w};
-}
-function apply(reload){
- var st;
- try{st=C.normalizeState(JSON.parse(localStorage.getItem(SK)||'null'));}catch(e){st=C.normalizeState(null);}
- st.profile=P;st.plan=plan();
- if(!st.weights||!st.weights.length)st.weights=[{date:C.dateKey(),kg:70}];
- var ok=false;try{localStorage.setItem(SK,JSON.stringify(st));localStorage.setItem(MK,'1');ok=true;}catch(e){}
- if(reload&&ok&&window.location&&window.location.reload)window.location.reload();
-}
-function auto(){
- /* public build: never overwrite anyone's profile/plan. New users go through the generic questionnaire; existing users keep their own plan. */
-}
 function badge(s){return '<span class="coach-tag">'+esc(s)+'</span>';}
-function exBlock(list){
- return list.map(function(x){
-  var e=C.EX_BY_ID[x.id],name=e?e.name:x.id;
-  return '<div class="coach-ex"><div class="coach-ex-h"><b>'+esc(name)+'</b><span>'+x.sets+' 组 × '+esc(x.reps)+' 次 · 休息 '+x.rest+'s</span></div><div class="coach-load">'+esc(x.load)+'</div><ul>'+x.cue.map(function(c){return '<li>'+esc(c)+'</li>';}).join('')+'</ul></div>';
+/* v1.3: 入门页计划区动态展示用户自己问卷生成的 S.plan，不再写死第二套计划 */
+function userPlanBlock(){
+ var st=null;try{st=JSON.parse(localStorage.getItem(SK)||'null');}catch(e){}
+ if(!st||!st.plan||!st.plan.week||!st.profile)return '<div class="coach-sub">还没有训练计划。到「设置」里做一次问卷，系统会按你的目标 / 经验 / 场地生成一套，这里会同步显示。</div>';
+ var td=C.weekdayIndex();
+ var rows=st.plan.week.map(function(d){
+  var sub=d.rest?'休息 / 主动恢复':(d.title||'训练')+' · '+d.items.length+' 个动作';
+  return '<div class="coach-week-row'+(d.day===td?' today':'')+'"><b>'+esc(d.weekday)+'</b><span class="cw-title">'+esc(sub)+'</span>'+(d.day===td?'<span class="cw-sub">今天</span>':'')+'</div>';
  }).join('');
+ return '<div class="coach-sub">这是你当前唯一的训练计划（在「设置」里重做问卷会更新）。同一套也显示在「计划」页——入门指南讲「怎么练对」，计划讲「练什么」，两者一致不冲突。</div><div class="coach-week">'+rows+'</div><div class="note-bar">照「计划」页执行即可；本页其余内容为通用建议，不会改动你的计划或记录。</div>';
 }
 function sec(title,body){return '<section class="coach-sec"><h3>'+esc(title)+'</h3>'+body+'</section>';}
 function ul(arr){return '<ul class="coach-ul">'+arr.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';}
@@ -103,7 +72,7 @@ function html(){
  h.push('<div class="coach-hero"><div class="coach-kicker">新手入门 · 通用指南</div><h2>先练对，再练重。</h2><p>刚开始别急着追重量。前两周把动作做标准：肩胛稳住、离心控住、脖子放松。健身骗不了人，练多少得多少。</p></div>');
 h.push(sec('新手从这里开始','<p>刚开始建议从空杆 / 最轻档起步，推肩用最轻哑铃，引体先练离心，每次带上背部和肩袖稳定动作。重量不是起点，动作质量才是。</p><div class="note-bar">前两周先不加重量，把动作做标准比做多重要。</div>'));
  h.push(sec('先改这 3 个动作错误',ERRORS.map(function(e){return '<div class="coach-ex"><div class="coach-ex-h"><b>'+esc(e[0])+'</b><span>常见表现：'+esc(e[1])+'</span></div><p>'+esc(e[2])+'</p></div>';}).join('')+'<div class="note-bar">这三个不解决，加重量毫无意义——一大半是耸肩和失控漏掉的力，不是胸没力气。</div>'));
- h.push(sec('第一周训练计划','<div class="coach-sub">一周 2 次（周一 A / 周四 B），隔天；每次 40-50 分钟 = 热身 8 分钟 + 3 个动作约 28 分钟 + 收尾拉伸 8 分钟。周六体态专项可选。热身只用快走 5 分钟 + 肩绕环 / 猫牛 / 胸椎伸展。</div><h4>训练 A · 推 + 肩胛</h4>'+exBlock(A)+'<h4>训练 B · 拉 + 肩袖</h4>'+exBlock(B)+'<h4>体态专项（周六可选，状态差就跳过）</h4>'+exBlock(D)+'<div class="note-bar">两次都含体态动作（面拉 / 肩外旋），专门对抗肩胛前引和上斜方代偿。</div>'));
+ h.push(sec('你的本周训练计划',userPlanBlock()));
  h.push(sec('升级信号：一周一条，看得见才准升','<div class="coach-steps">'+UPGRADE.map(function(u,i){return '<div class="coach-step"><b>'+esc(u[0])+'</b><span>'+esc(u[1])+'</span><i>'+esc(u[2])+'</i></div>';}).join('')+'</div><div class="note-bar">第一周按 3 组封印；第 3 周稳了再升到 4 组。加重量必须是 2.5kg 不是 5kg，一次只改一样。</div>'));
  h.push(sec('铁律',ul(RULES)));
  h.push(sec('一周外卖对照表','<div class="coach-sub">早餐每天固定：2 个鸡蛋 + 1 杯无糖豆浆 / 牛奶 + 1 份主食，约 22g 蛋白。训练日晚餐放在训练后 1 小时内。</div><div class="coach-meals">'+MEALS.map(function(m){return '<div class="coach-meal"><b>'+esc(m[0])+'</b><div><span>午餐</span>'+esc(m[1])+'</div><div><span>晚餐</span>'+esc(m[2])+'</div></div>';}).join('')+'</div>'));
@@ -141,7 +110,6 @@ function boot(){
   var m=$('main');if(m)new window.MutationObserver(sync).observe(m,{attributes:true,attributeFilter:['hidden']});
  }
 }
-auto();
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
-window.XulianCoach={render:render,apply:apply,plan:plan};
+window.XulianCoach={render:render};
 })();

@@ -25,16 +25,20 @@ var OB=[
 function renderOb(){var s=OB[obStep],h='<div class="ob-q">'+s.q+'</div><div class="ob-hint">'+s.hint+'</div>';
 s.opts.forEach(function(o){var on=String(obData[s.key])===String(o[0]);
 h+='<button class="opt'+(on?' on':'')+'" data-ob="'+esc(o[0])+'" type="button"><div class="opt-ico">'+o[3]+'</div><div class="opt-tx"><b>'+esc(o[1])+'</b><small>'+esc(o[2])+'</small></div><div class="opt-check"></div></button>';});
-if(obStep===3)h+='<div class="row2" style="margin-top:14px"><input class="field" id="obH" type="number" placeholder="\u8eab\u9ad8 cm" value="170"><input class="field" id="obW" type="number" placeholder="\u4f53\u91cd kg" value="65"></div>';
+if(obStep===3)h+='<div class="ob-optional"><div class="ob-opt-label">身高 / 体重（选填）</div><div class="ob-opt-note">只用于估算营养参考，不影响训练计划，可留空。</div><div class="row2"><label class="ob-field"><span>身高 cm</span><input class="field" id="obH" type="number" inputmode="numeric" placeholder="选填" value=""></label><label class="ob-field"><span>体重 kg</span><input class="field" id="obW" type="number" inputmode="decimal" placeholder="选填" value=""></label></div></div>';
 $('obStep').innerHTML=h;$('obProgress').style.width=((obStep+1)*25)+'%';$('obBack').hidden=obStep===0;$('obNext').textContent=obStep===3?'\u751f\u6210\u6211\u7684\u8ba1\u5212':'\u4e0b\u4e00\u6b65';}
-function finishOb(){obData.height=C.clampInt($('obH').value,120,220,170);obData.weight=C.clampInt($('obW').value,30,200,65);
-S.profile=C.validateProfile(obData);S.plan=C.generatePlan(S.profile,C.EXERCISES);S.weights=[{date:C.dateKey(),kg:S.profile.weight}];save();
+function finishOb(){obData.height=C.clampInt($('obH').value,120,220,'');obData.weight=C.clampInt($('obW').value,30,200,'');
+S.profile=C.validateProfile(obData);S.plan=C.generatePlan(S.profile,C.EXERCISES);
+S.weights=[];if(S.profile.weight!=='')S.weights=[{date:C.dateKey(),kg:S.profile.weight}];save();
 $('onboarding').hidden=true;$('main').hidden=false;render();toast('\u8ba1\u5212\u5df2\u751f\u6210\uff0c\u5148\u7ec3\u5bf9\u518d\u7ec3\u91cd');}
 function renderToday(){var p=todayPlan(),d=C.dateKey(),out='';
 if(!p){$('v-today').innerHTML='<div class="empty"><b>\u8fd8\u6ca1\u6709\u8ba1\u5212</b>\u53bb\u8bbe\u7f6e\u91cc\u91cd\u65b0\u751f\u6210</div>';return;}
 var doneN=0,total=0;p.items.forEach(function(it){total+=it.sets;doneN+=doneSets(it.exId,d).length;});
 var goal=C.goalById(S.profile.goal);
-out+='<div class="hero"><h2>'+esc(p.title)+'</h2><p>'+esc(p.weekday)+' \u00b7 '+esc(goal.name)+' \u00b7 '+esc(S.profile.place==='gym'?'\u5065\u8eab\u623f':'\u5c45\u5bb6')+'</p><div class="hero-row"><div><b>'+doneN+'/'+total+'</b><span>\u5df2\u5b8c\u6210\u7ec4\u6570</span></div><div><b>'+C.streakOf(S.sessions,d)+'</b><span>\u8fde\u7eed\u6253\u5361\u5929</span></div><div><b>'+C.volumeOf(S.logs.filter(function(l){return l.date===d;}))+'</b><span>\u4eca\u65e5\u5bb9\u91cf kg</span></div></div></div>';
+var heroRow=p.rest
+ ? '<div class="hero-rest">今天不安排训练 · 好好恢复，明天更有劲</div>'
+ : '<div class="hero-row"><div><b>'+doneN+'/'+total+'</b><span>已完成组数</span></div><div><b>'+C.streakOf(S.sessions,d)+'</b><span>连续打卡天</span></div><div><b>'+C.volumeOf(S.logs.filter(function(l){return l.date===d;}))+'</b><span>今日负重 kg</span></div></div>';
+out+='<div class="hero"><h2>'+esc(p.title)+'</h2><p>'+esc(p.weekday)+' \u00b7 '+esc(goal.name)+' \u00b7 '+esc(S.profile.place==='gym'?'\u5065\u8eab\u623f':'\u5c45\u5bb6')+'</p>'+heroRow+'</div>';
 if(p.rest)out+='<div class="card"><div class="ex-name">\u4eca\u5929\u4f11\u606f</div><div class="muted small" style="margin-top:6px">'+esc(p.note)+'</div></div>';
 else{out+='<div class="note-bar">'+esc(p.note)+'</div>';
 p.items.forEach(function(it){var e=C.EX_BY_ID[it.exId];if(!e)return;
@@ -90,11 +94,12 @@ e.cues.forEach(function(c,i){h+='<div class="cue"><i>'+(i+1)+'</i><span>'+esc(c)
 h+='<div class="card"><div class="sec-title" style="margin-top:0">\u2462 \u5e38\u89c1\u9519\u8bef</div><div class="small">'+esc(e.mistakes.join('\uff1b'))+'</div></div>';
 if(e.risky)h+='<div class="warn">\u9ad8\u98ce\u9669\u52a8\u4f5c\uff1a\u96f6\u57fa\u7840\u4e0e\u5f3a\u5ea6\u5c01\u5370\u671f\u4e0d\u4f1a\u6392\u8fdb\u8ba1\u5212\uff0c\u5efa\u8bae\u6709\u4eba\u4fdd\u62a4\u518d\u7ec3\u3002</div>';
 h+='<div class="disclaimer">\u52a8\u4f5c\u793a\u610f\u56fe\u4ec5\u4f9b\u5b66\u4e60\u53c2\u8003\uff0c\u5982\u6709\u4f24\u75c5\u8bf7\u54a8\u8be2\u4e13\u4e1a\u533b\u5e08\u6216\u6559\u7ec3\u3002</div>';openSheet(h);}
-function renderMe(){var d=C.dateKey(),vol=C.volumeOf(S.logs),streak=C.streakOf(S.sessions,d);
-var wk=C.weeklyVolume(S.logs,8,d),max=Math.max.apply(null,wk.map(function(x){return x.value;}).concat([1]));
+function renderMe(){var d=C.dateKey(),vol=C.volumeOf(S.logs),streak=C.streakOf(S.sessions,d),doneN=S.logs.filter(function(l){return l.done;}).length;
+var wk=C.weeklySets(S.logs,8,d),max=Math.max.apply(null,wk.map(function(x){return x.value;}).concat([1]));
 var h='<div class="hero"><h2>\u575a\u6301\u6709\u8ff9\u53ef\u5faa</h2><p>\u6570\u636e\u53ea\u5b58\u5728\u8fd9\u53f0\u8bbe\u5907\u7684\u6d4f\u89c8\u5668\u91cc</p></div>';
-h+='<div class="stat-grid"><div class="stat"><b>'+S.sessions.length+'</b><span>\u7d2f\u8ba1\u8bad\u7ec3\u6b21\u6570</span></div><div class="stat"><b>'+streak+'</b><span>\u8fde\u7eed\u6253\u5361\u5929\u6570</span></div><div class="stat"><b>'+vol+'</b><span>\u7d2f\u8ba1\u5bb9\u91cf kg</span></div><div class="stat"><b>'+S.logs.filter(function(l){return l.done;}).length+'</b><span>\u5b8c\u6210\u7ec4\u6570</span></div></div>';
-h+='<div class="card"><div class="sec-title" style="margin-top:0">\u8fd1 8 \u5468\u8bad\u7ec3\u5bb9\u91cf (kg)</div><svg class="chart" viewBox="0 0 320 130" preserveAspectRatio="none">';
+h+='<div class="stat-grid"><div class="stat"><b>'+S.sessions.length+'</b><span>累计训练次数</span></div><div class="stat"><b>'+streak+'</b><span>连续打卡天数</span></div><div class="stat"><b>'+doneN+'</b><span>累计完成组数</span></div><div class="stat"><b>'+vol+'</b><span>负重容量 kg</span></div></div>';
+h+='<div class="hero-metric-note">负重容量只统计填写了重量的动作组；徒手 / 计时动作计入完成组数，不计负重。</div>';
+h+='<div class="card"><div class="sec-title" style="margin-top:0">近 8 周训练组数</div><svg class="chart" viewBox="0 0 320 130" preserveAspectRatio="none">';
 wk.forEach(function(x,i){var bh=Math.round(x.value/max*88),bx=8+i*39,by=110-bh;h+='<rect x="'+bx+'" y="'+by+'" width="26" height="'+Math.max(bh,2)+'" rx="5" fill="'+(i===7?'#FF7A45':'#166B54')+'"/>';h+='<text x="'+(bx+13)+'" y="126" font-size="9" text-anchor="middle" fill="#93A29B">'+esc(x.label)+'</text>';});
 h+='</svg></div><div class="card"><div class="sec-title" style="margin-top:0">\u4f53\u91cd\u8bb0\u5f55</div><div class="row2"><input class="field" id="wKg" type="number" placeholder="\u4eca\u65e5\u4f53\u91cd kg"><button class="btn btn-primary btn-sm" data-act="save-weight" type="button">\u8bb0\u4e00\u7b14</button></div>';
 if(S.weights.length){var last=S.weights[S.weights.length-1];h+='<div class="small muted">\u6700\u8fd1\uff1a'+esc(last.kg)+' kg\uff08'+esc(last.date)+'\uff09</div>';}
@@ -105,7 +110,7 @@ function showSettings(){var h='<h3>\u8bbe\u7f6e</h3><div class="sub">\u8c03\u657
 h+='<button class="btn btn-ghost btn-block" data-act="restart" type="button" style="margin-bottom:8px">\u91cd\u65b0\u505a\u95ee\u5377 / \u6362\u76ee\u6807</button>';
 h+='<button class="btn btn-ghost btn-block" data-act="export" type="button" style="margin-bottom:8px">\u5bfc\u51fa\u8bad\u7ec3\u6570\u636e (JSON)</button>';
 h+='<button class="btn btn-ghost btn-block" data-act="reset" type="button" style="margin-bottom:8px;color:#C0392B">\u6e05\u7a7a\u5168\u90e8\u6570\u636e</button>';
-h+='<div class="disclaimer">\u7248\u672c 1.1 \u00b7 \u7eaf\u79bb\u7ebf \u00b7 \u65e0\u8d26\u53f7 \u00b7 \u65e0\u4e0a\u4f20\u3002</div>';openSheet(h);}
+h+='<div class="disclaimer">\u7248\u672c 1.3 \u00b7 \u7eaf\u79bb\u7ebf \u00b7 \u65e0\u8d26\u53f7 \u00b7 \u65e0\u4e0a\u4f20\u3002</div>';openSheet(h);}
 function setRecord(ex,i,field,val){var d=C.dateKey(),rec=S.logs.filter(function(l){return l.date===d&&l.exId===ex&&l.setIndex===i;})[0];
 if(!rec){rec={date:d,exId:ex,setIndex:i,weight:'',reps:'',done:false,ts:Date.now()};S.logs.push(rec);}
 rec[field]=C.clampInt(val,0,999,'');save();}

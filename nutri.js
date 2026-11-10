@@ -17,7 +17,7 @@
 })(typeof window !== 'undefined' ? window : this, function () {
   'use strict';
 
-  var VERSION = '1.2.0';
+  var VERSION = '1.3.0';
   var ACTIVITY = [
     ['sedentary', '久坐（几乎不运动）', 1.2],
     ['light', '轻度（每周 1–3 次）', 1.375],
@@ -146,6 +146,74 @@
       waterMin: waterMin, waterMax: waterMax, veg: veg,
       bmi: bmi, bmiLabel: bmiLabel(bmi), warnings: warnings
     };
+  }
+
+  /* ============ 纯计算：《健身营养全书》依据映射 + 落地清单（v1.3） ============
+   * 只取原理与区间：章节名据公开目录，不编造原书精确克数；去个人化，面向所有用户。
+   */
+  function bookLink(r) {
+    r = r || {};
+    var w = Number(r.weightKg);
+    if (!isFinite(w) || w <= 0) w = 65;
+    var pMin = Number(r.proteinMin);
+    var pMax = Number(r.proteinMax);
+    if (!isFinite(pMin) || pMin <= 0) pMin = Math.round(w * 1.8);
+    if (!isFinite(pMax) || pMax <= 0) pMax = Math.round(w * 2.0);
+    var fMin = Number(r.fatMin), fMax = Number(r.fatMax);
+    if (!isFinite(fMin) || fMin <= 0) fMin = Math.round(w * 0.75);
+    if (!isFinite(fMax) || fMax <= 0) fMax = Math.round(w * 0.9);
+    var carbMid = (r.carbMid === 0 || r.carbMid) ? r.carbMid : null;
+    var waterMin = Number(r.waterMin), waterMax = Number(r.waterMax);
+    if (!isFinite(waterMin) || waterMin <= 0) waterMin = Math.round(w * 30);
+    if (!isFinite(waterMax) || waterMax <= 0) waterMax = Math.round(w * 35);
+
+    var basis = [
+      { label: '每日热量区间 / 维持热量', chapter: '第⑥章 健身运动中的能量平衡', hint: '先定总热量，再谈三大营养素分配。' },
+      { label: '蛋白质 ' + pMin + '–' + pMax + 'g', chapter: '第⑤章 蛋白质——生命的基石', hint: '足量蛋白是增肌与减脂共同的底线。' },
+      { label: '碳水' + (carbMid !== null ? '（约 ' + carbMid + 'g）' : ''), chapter: '第②章 碳水化合物', hint: '碳水为训练供能，别一味断碳。' },
+      { label: '脂肪 ' + fMin + '–' + fMax + 'g', chapter: '第③章 脂肪和类脂', hint: '脂肪关系激素水平，别压得过低。' },
+      { label: '饮水 + 训练日补钠', chapter: '第①章 水盐平衡', hint: '水盐一起看，大量出汗要补钠。' },
+      { label: '蔬菜 / 维生素与微量元素', chapter: '第⑧章 维生素、常量元素、微量元素与免疫系统', hint: '极端节食最容易缺的正是这一层。' }
+    ];
+
+    var perMealMin = Math.round(pMin / 3), perMealMax = Math.round(pMax / 3);
+    var proteinSplit = {
+      total: pMin + '–' + pMax + 'g / 天',
+      perMeal: perMealMin + '–' + perMealMax + 'g / 餐（分 3 餐）',
+      tip: '把全天蛋白平均分到 3 餐，每餐都安排肉 / 蛋 / 奶 / 豆制品；比集中在一餐更利于肌肉合成。这是通用分配思路，不是原书的精确克数。'
+    };
+
+    var electrolyte = {
+      water: (waterMin / 1000).toFixed(1) + '–' + (waterMax / 1000).toFixed(1) + 'L / 天',
+      sodium: '训练日、大量出汗或天气热时，水之外还要补钠：正常吃饭 + 一杯淡盐水或电解质水即可，不必走极端无盐饮食。',
+      src: '第①章 水盐平衡'
+    };
+
+    var dietCompare = [
+      { name: '极低热量 / 断食式', verdict: '短期数字好看，易掉肌肉、反弹、训练表现下滑', fit: '不推荐新手' },
+      { name: '极低碳（阿特金斯类）', verdict: '体重掉得快但多含水波动，高强度训练供能吃紧', fit: '谨慎' },
+      { name: '低脂', verdict: '方向稳，但脂肪过低会影响激素与饱腹感', fit: '可用，别极端' },
+      { name: '低 GI', verdict: '看重碳水质量，较温和可持续', fit: '可参考' },
+      { name: '循环饮食 / 合成代谢饮食', verdict: '按训练日调整碳水，操作偏复杂', fit: '进阶再考虑' },
+      { name: '均衡 + 轻微赤字（身体重组）', verdict: '兼顾保肌与可持续，新手最稳', fit: '本模块默认推荐' }
+    ];
+
+    var eatOut = [
+      { n: 1, t: '先锁蛋白', d: '每餐先定一份掌心大小的肉 / 鱼 / 蛋 / 豆制品，再配主食和蔬菜。' },
+      { n: 2, t: '主食随训练调', d: '训练日主食正常吃，休息日可略减；不要一律不吃。' },
+      { n: 3, t: '控油控酱', d: '少油炸和红烧收汁，多蒸煮白灼；酱料另放。' }
+    ];
+
+    var micro = '第⑧章提醒：蔬果不只提供纤维和维生素，也关系常量 / 微量元素与免疫。长期只吃少数加工食品最容易缺这一层——每天 300–500g 蔬菜、1–2 份水果是低成本的补法。';
+    var caveat = '出处与口径：章节名称据该书公开目录。原书为德文研究，个别推荐量与英文体系（如 ISSN）略有差异；本模块只取原理与区间、不纠结某个克数的个位，具体数值以原书为准。有肾病等基础疾病者，高蛋白方案请先咨询医生。';
+    var book = {
+      title: '健身营养全书',
+      author: '克里斯蒂安·冯·勒费尔霍尔茨（德，医学博士 / 营养学家）',
+      translator: '庄仲华 译',
+      publisher: '北京科学技术出版社，2018-04',
+      isbn: '9787530493885'
+    };
+    return { version: VERSION, book: book, basis: basis, proteinSplit: proteinSplit, electrolyte: electrolyte, dietCompare: dietCompare, eatOut: eatOut, micro: micro, caveat: caveat };
   }
 
   /* ============ 纯计算：疲倦自查（补全版） ============ */
@@ -355,6 +423,7 @@
       '<div><b>' + r.tdee + '</b><span>维持热量 TDEE</span></div>' +
       '</div>';
     s += '<div class="nt-hint" style="margin:0 0 12px">' + h(r.kcalNote) + '</div>';
+    s += '<div class="nt-srcbar">本模块数字对应《健身营养全书》章节 · 展开下方查看依据与落地清单</div>';
     s += '<div class="nt-macro">' +
       '<div><b>' + r.proteinMin + '–' + r.proteinMax + 'g</b><span>蛋白质 · ' + r.proteinPerKg[0] + '–' + r.proteinPerKg[1] + 'g/kg</span></div>' +
       '<div><b>' + r.fatMin + '–' + r.fatMax + 'g</b><span>脂肪</span></div>' +
@@ -368,9 +437,37 @@
       s += '<div class="nt-warn">' + r.warnings.map(function (w) { return '<div>· ' + h(w) + '</div>'; }).join('') + '</div>';
     }
     s += '</section>';
+    s += renderBookLink(bookLink(r));
     s += '<div class="nt-result-note">通用估算，公式（Mifflin-St Jeor / Katch-McArdle）给的是起点不是精确值。连续 2–3 周盯体重（每周 3 次取均值）与腰围再调整。不提供医疗建议；有基础疾病请咨询医生或注册营养师。</div>';
     out.innerHTML = s;
     out.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function renderBookLink(b) {
+    var s = '';
+    s += '<details class="nt-book"><summary>依据与落地清单 · 《健身营养全书》 · 点开看</summary><div class="nt-book-in">';
+    s += '<div class="nt-book-src">参考书目｜《' + h(b.book.title) + '》｜' + h(b.book.author) + '｜' + h(b.book.translator) + '｜' + h(b.book.publisher) + '｜ISBN ' + h(b.book.isbn) + '</div>';
+    s += '<h5>① 每一项对应书里哪一章</h5><div class="nt-basis">';
+    b.basis.forEach(function (x) {
+      s += '<div class="nt-basis-row"><span class="ch">' + h(x.chapter) + '</span><span class="lb">' + h(x.label) + ' · ' + h(x.hint) + '</span></div>';
+    });
+    s += '</div>';
+    s += '<h5>② 蛋白质拆到三餐</h5><div class="nt-bkbox"><b>' + h(b.proteinSplit.total) + ' → ' + h(b.proteinSplit.perMeal) + '</b><p>' + h(b.proteinSplit.tip) + '</p></div>';
+    s += '<h5>③ ' + h(b.electrolyte.src) + ' · 训练日补钠</h5><div class="nt-bkbox"><b>' + h(b.electrolyte.water) + '</b><p>' + h(b.electrolyte.sodium) + '</p></div>';
+    s += '<h5>④ 书里横向比较的几种流行饮食法</h5><div class="nt-diet">';
+    b.dietCompare.forEach(function (x) {
+      s += '<div class="nt-diet-row"><span class="nm">' + h(x.name) + '</span><span class="vd">' + h(x.verdict) + '</span><span class="ft">' + h(x.fit) + '</span></div>';
+    });
+    s += '</div>';
+    s += '<h5>⑤ 外食 / 点餐 3 原则</h5><div class="nt-eat">';
+    b.eatOut.forEach(function (x) {
+      s += '<div class="nt-eat-row"><b>' + x.n + '</b><span><strong>' + h(x.t) + '</strong> · ' + h(x.d) + '</span></div>';
+    });
+    s += '</div>';
+    s += '<h5>⑥ 别漏了维生素与微量元素</h5><p class="nt-bkp">' + h(b.micro) + '</p>';
+    s += '<div class="nt-book-caveat">' + h(b.caveat) + '</div>';
+    s += '</div></details>';
+    return s;
   }
 
   function renderFatigue() {
@@ -484,6 +581,7 @@
   return {
     version: VERSION,
     calcMacros: calcMacros,
+    bookLink: bookLink,
     assessFatigue: assessFatigue,
     mount: mount,
     _round10: round10

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#166B54">
+<meta name="description" content="序练 - 先练对，再练重。为健身新人生成周分化训练计划与打卡。">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="app.css">
+<title>序练 · 先练对，再练重</title>
+</head>
+<body>
+<div class="phone">
+<section id="onboarding" class="onboarding" hidden>
+<div class="ob-top"><div class="brand-mark">序</div><div class="ob-brand">序练 <span>XULIAN</span></div><div class="ob-slogan">先练对，再练重</div></div>
+<div class="ob-body"><div class="ob-progress"><i id="obProgress"></i></div><div id="obStep"></div></div>
+<div class="ob-foot"><button class="btn btn-ghost" id="obBack" type="button">上一步</button><button class="btn btn-primary" id="obNext" type="button">下一步</button></div>
+</section>
+<main id="main" hidden>
+<header class="topbar"><div class="topbar-left"><div class="topbar-logo">序</div><div><div class="topbar-title" id="topTitle">今天</div><div class="topbar-sub" id="topSub"></div></div></div><button class="icon-btn" data-act="settings" type="button">设置</button></header>
+<div class="coach-strip" id="coachStrip" hidden=""></div>
+<div class="views">
+<section class="view" id="v-today"></section>
+<section class="view" id="v-plan" hidden></section>
+<section class="view" id="v-lib" hidden></section>
+<section class="view" id="v-me" hidden></section>
+<section class="view" id="v-coach" hidden></section>
+</div>
+<nav class="tabbar">
+<button class="tab active" data-tab="today" type="button">今天</button>
+<button class="tab" data-tab="plan" type="button">计划</button>
+<button class="tab" data-tab="coach" type="button">方案</button>
+<button class="tab" data-tab="lib" type="button">动作库</button>
+<button class="tab" data-tab="me" type="button">我的</button>
+</nav>
+</main>
+<div class="sheet-mask" id="sheetMask" hidden></div>
+<div class="sheet" id="sheet" hidden><div class="sheet-handle"></div><div class="sheet-body" id="sheetBody"></div></div>
+<div class="timer-float" id="timerFloat" hidden><div class="timer-ring"><div class="timer-num" id="timerNum">60</div></div><div class="timer-sub">组间休息</div><div class="timer-actions"><button class="btn btn-ghost btn-sm" data-act="timer-stop" type="button">结束</button><button class="btn btn-primary btn-sm" data-act="timer-add" type="button">+30s</button></div></div>
+<div class="toast" id="toast" hidden></div>
+</div>
+<script src="core.js"></script>
+<script src="coach.js"></script>
+<script src="app.js"></script>
+<script src="rest.js"></script>
+</body>
+</html>

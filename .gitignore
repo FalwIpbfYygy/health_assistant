@@ -1,0 +1,4 @@
+*.b64
+*.log
+.DS_Store
+__pycache__/

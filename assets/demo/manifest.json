@@ -1,5 +1,5 @@
 {
-  "count": 38,
+  "count": 41,
   "source": "self-drawn SVG skeleton (no external assets, no network)",
   "items": [
     {
@@ -419,6 +419,39 @@
       "motion": "cardio",
       "file": "assets/demo/rowing_machine.svg",
       "bytes": 1898
+    },
+    {
+      "id": "dip",
+      "name": "双杠臂屈伸",
+      "group": "chest",
+      "level": 2,
+      "equip": "双杠/辅助器",
+      "stance": "stand",
+      "motion": "dip",
+      "file": "assets/demo/dip.svg",
+      "bytes": 1954
+    },
+    {
+      "id": "single_arm_pushdown",
+      "name": "单臂绳索屈伸",
+      "group": "arm",
+      "level": 1,
+      "equip": "龙门架",
+      "stance": "stand",
+      "motion": "pushdown",
+      "file": "assets/demo/single_arm_pushdown.svg",
+      "bytes": 2064
+    },
+    {
+      "id": "leg_extension",
+      "name": "坐姿腿屈伸",
+      "group": "leg",
+      "level": 1,
+      "equip": "固定器械",
+      "stance": "sit",
+      "motion": "extension",
+      "file": "assets/demo/leg_extension.svg",
+      "bytes": 2094
     }
   ]
 }

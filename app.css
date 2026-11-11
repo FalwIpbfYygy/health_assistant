@@ -250,3 +250,12 @@ body.sheet-open .rest-dock,body.sheet-open .timer-float{display:none!important}
 .nt-eat-row strong{color:var(--ink)}
 .nt-bkp{font-size:11.5px;color:var(--ink2);line-height:1.7;margin:0}
 .nt-book-caveat{font-size:10.5px;color:#9A4B21;background:#FFF4EE;border-left:3px solid var(--accent);border-radius:0 9px 9px 0;padding:9px 10px;margin-top:12px;line-height:1.65}
+
+
+/* v1.4 计划模板切换 */
+.tpl-switch{display:flex;gap:4px;margin:2px 0 12px;background:#EDF3EF;padding:4px;border-radius:13px;}
+.tpl-btn{flex:1;border:0;background:transparent;color:#5C6B63;font-size:13px;font-weight:600;padding:9px 6px;border-radius:10px;cursor:pointer;line-height:1.2;}
+.tpl-btn.on{background:#ffffff;color:#2E7D5B;box-shadow:0 1px 4px rgba(23,60,42,.12);}
+.tpl-warn,.tpl-ok{font-size:12px;line-height:1.55;padding:9px 11px;border-radius:9px;margin:0 0 10px;}
+.tpl-warn{background:#FFF5E6;color:#8A5A10;border:1px solid #F0DDB9;}
+.tpl-ok{background:#EAF6EF;color:#256B4C;border:1px solid #CDE8D8;}

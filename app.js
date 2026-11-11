@@ -59,14 +59,19 @@ out+='<div class="ex-foot"><button class="btn btn-ghost btn-sm" data-act="detail
 out+='<button class="btn btn-primary btn-block" data-act="finish" type="button">\u5b8c\u6210\u672c\u6b21\u8bad\u7ec3</button>';}
 $('v-today').innerHTML=out;}
 function renderPlan(){if(!S.plan){$('v-plan').innerHTML='<div class="empty"><b>\u8fd8\u6ca1\u6709\u8ba1\u5212</b></div>';return;}
-var w=S.plan.week,td=C.weekdayIndex();if(planDay===null)planDay=td;var h='<div class="week-scroll">';
+var w=S.plan.week,td=C.weekdayIndex();if(planDay===null)planDay=td;
+  var isTpl=S.plan.tpl==='classic5';
+  var tplBar='<div class="tpl-switch"><button class="tpl-btn'+(isTpl?'':' on')+'" data-act="tpl" data-t="smart" type="button">智能生成</button><button class="tpl-btn'+(isTpl?' on':'')+'" data-act="tpl" data-t="classic5" type="button">经典五日分化</button></div>';
+  var extra='';
+  if(isTpl){if(S.plan.gymOnly)extra+='<div class="tpl-warn">这套是健身房器械计划，居家训练建议切回「智能生成」或换用替代器械。</div>';if(S.plan.downgraded)extra+='<div class="tpl-ok">零基础保护：杠铃深蹲已换成高脚杯深蹲、罗马尼亚硬拉已换成坐姿腿弯举。</div>';}
+  var h=tplBar+extra+'<div class="week-scroll">';
 w.forEach(function(d){h+='<button class="day-pill'+(planDay===d.day?' on':'')+(d.day===td?' today':'')+'" data-act="day" data-d="'+d.day+'" type="button"><b>'+esc(d.weekday)+'</b><small>'+(d.rest?'\u4f11\u606f':d.items.length+' \u4e2a\u52a8\u4f5c')+'</small><div class="day-dot'+(d.rest?' rest':'')+'"></div></button>';});
 h+='</div>';var d=w[planDay];
 h+='<div class="plan-head"><b>'+esc(d.title)+'</b><span>'+S.plan.profile.days+' \u5929/\u5468 \u00b7 '+esc(C.goalById(S.plan.profile.goal).name)+'</span></div><div class="card">';
 if(d.rest)h+='<div class="muted small">'+esc(d.note)+'</div>';
 else d.items.forEach(function(it){var e=C.EX_BY_ID[it.exId];if(!e)return;h+='<div class="mini-ex" data-act="detail" data-ex="'+esc(e.id)+'"><div class="mini-dot" style="background:'+gcolor(e.group)+'"></div><b>'+esc(e.name)+'</b><span>'+it.sets+' \u00d7 '+esc(it.reps)+'</span></div>';});
 h+='</div><div class="note-bar">'+esc(d.note)+'</div><button class="btn btn-ghost btn-block" data-act="regen" type="button">\u91cd\u65b0\u751f\u6210\u8ba1\u5212</button>';
-h+='<div class="disclaimer">'+esc(C.planDisclaimer(S.plan.profile))+'\u3000\u5206\u5316\uff1a'+esc(C.SPLITS[S.plan.profile.days].focus.join(' / '))+'\u3002</div>';
+h+='<div class="disclaimer">'+esc(C.planDisclaimer(S.plan.profile))+'　'+(isTpl?'模板：经典五日分化（图片版）。':'分化：'+esc(C.SPLITS[S.plan.profile.days].focus.join(' / '))+'。')+'</div>';
 $('v-plan').innerHTML=h;}
 function renderLib(){var h='<input class="search" id="libSearch" placeholder="\u641c\u52a8\u4f5c\u540d / \u808c\u7fa4" value="'+esc(libQuery)+'"><div class="filters">';
 h+='<button class="filter'+(libFilter==='all'?' on':'')+'" data-act="filter" data-f="all" type="button">\u5168\u90e8</button>';
@@ -147,7 +152,8 @@ else if(a==='timer-add'){tmrLeft+=30;$('timerNum').textContent=tmrLeft;}
 else if(a==='finish'){if(!S.logs.some(function(l){return l.date===dk&&l.done;})){toast('\u5148\u52fe\u9009\u81f3\u5c11\u4e00\u7ec4\u518d\u5b8c\u6210');return;}
 if(!S.sessions.some(function(s){return s.date===dk;}))S.sessions.push({date:dk,volume:C.volumeOf(S.logs.filter(function(l){return l.date===dk;}))});
 save();toast('\u6253\u5361\u6210\u529f\uff0c\u660e\u5929\u89c1');render();}
-else if(a==='regen'){S.plan=C.generatePlan(S.profile,C.EXERCISES);save();renderPlan();toast('\u8ba1\u5212\u5df2\u91cd\u65b0\u751f\u6210');}
+else if(a==='tpl'){var which=t.dataset.t;if(which==='classic5')S.plan=C.generateClassic5(S.profile,C.EXERCISES);else S.plan=C.generatePlan(S.profile,C.EXERCISES);planDay=C.weekdayIndex();save();renderPlan();toast(which==='classic5'?'已套用经典五日分化':'已切回智能生成');}
+else if(a==='regen'){S.plan=(S.plan&&S.plan.tpl==='classic5')?C.generateClassic5(S.profile,C.EXERCISES):C.generatePlan(S.profile,C.EXERCISES);save();renderPlan();toast('计划已重新生成');}
 else if(a==='save-weight'){var v=C.clampInt($('wKg').value,30,200,0);if(!v){toast('\u8bf7\u8f93\u5165\u4f53\u91cd');return;}
 S.weights=S.weights.filter(function(x){return x.date!==dk;});S.weights.push({date:dk,kg:v});save();renderMe();toast('\u5df2\u8bb0\u5f55');}
 else if(a==='settings'){showSettings();}

@@ -49,7 +49,10 @@ var RAW=[
 ['pallof_press','Pallof 抗旋转推','Pallof Press','core','龙门架/弹力带','b',2,0,0,'腹斜肌/核心抗旋转','侧对锚点双手贴胸|推出时抵抗身体旋转|顶端停两秒再收回','躯干被带转'],
 ['brisk_walk','坡度快走','Incline Walk','cardio','跑步机/户外','b',1,0,0,'心肺/脂肪供能','坡度6-10速度能说完整句子|摆臂自然不扶扶手|保持15-25分钟匀速','抓扶手把强度走没了'],
 ['elliptical','椭圆机','Elliptical','cardio','固定器械','g',1,0,0,'心肺/低冲击有氧','挺胸站稳脚掌全程贴合踏板|阻力与步频平衡不空转|保持15-25分钟','含胸驼背压把手'],
-['rowing_machine','划船机','Rowing Machine','cardio','固定器械','g',2,0,0,'心肺/全身协调','顺序：腿蹬→髋展开→手拉|回程反向：手→髋→腿|背部保持平直','一上来就用手拉']
+['rowing_machine','划船机','Rowing Machine','cardio','固定器械','g',2,0,0,'心肺/全身协调','顺序：腿蹬→髋展开→手拉|回程反向：手→髋→腿|背部保持平直','一上来就用手拉'],
+['dip','\u53cc\u6760\u81c2\u5c48\u4f38','Dip','chest','\u53cc\u6760\u002f\u8f85\u52a9\u5668','g',2,1,0,'\u80f8\u5927\u808c\u4e0b\u6cbf\u002f\u80b1\u4e09\u5934\u808c','\u8eab\u4f53\u76f4\u7acb\u80a9\u4e0b\u6c89|\u4e0b\u653e\u81f3\u5927\u81c2\u4e0e\u5730\u9762\u5e73\u884c|\u63a8\u8d77\u4e0d\u9501\u6b7b\u624b\u8098','\u8038\u80a9\u501f\u529b\u6216\u4e0b\u653e\u8fc7\u6df1\u4f24\u80a9'],
+['single_arm_pushdown','\u5355\u81c2\u7ef3\u7d22\u5c48\u4f38','Single-arm Triceps Pushdown','arm','\u9f99\u95e8\u67b6','g',1,0,0,'\u80b1\u4e09\u5934\u808c','\u5927\u81c2\u8d34\u8eab\u5939\u7d27\u5355\u624b\u63e1\u628a|\u53ea\u52a8\u524d\u81c2\u538b\u5230\u5e95|\u56de\u653e\u63a7\u5236\u4e0d\u7529','\u5927\u81c2\u524d\u540e\u6446\u52a8\u501f\u529b'],
+['leg_extension','\u5750\u59ff\u817f\u5c48\u4f38','Leg Extension','leg','\u56fa\u5b9a\u5668\u68b0','g',1,0,0,'\u80a1\u56db\u5934\u808c','\u819d\u5173\u8282\u5bf9\u51c6\u673a\u5668\u8f6c\u8f74|\u5c0f\u817f\u7ed1\u7d27\u7f13\u6162\u4f38\u76f4\u5230\u63a5\u8fd1\u6253\u76f4|\u9876\u7aef\u505c\u4e00\u79d2\u518d\u653e\u56de','\u5f39\u9707\u7529\u817f\u6216\u81c0\u90e8\u79bb\u5ea7']
 ];
 var E=RAW.map(function(r){return {id:r[0],name:r[1],en:r[2],group:r[3],equip:r[4],place:r[5]==='g'?['gym']:(r[5]==='h'?['home']:['gym','home']),level:r[6],compound:!!r[7],risky:!!r[8],target:r[9],cues:r[10].split('|'),mistakes:[r[11]]};});
 var EX_BY_ID={};E.forEach(function(e){EX_BY_ID[e.id]=e;});
@@ -92,6 +95,25 @@ var focus=split.focus[slot];var items=pickExercises(focus,p,count,list).map(func
 if(p.goal==='fat'){var c=list.filter(function(e){return e.group==='cardio'&&e.place.indexOf(p.place)>=0;})[0];if(c)items.push({exId:c.id,order:items.length,sets:1,reps:'15-25 分钟',rest:0});}
 return {day:d,weekday:name,rest:false,title:FOCUS_NAME[focus],focus:focus,items:items,note:isNew?'强度封印：前两周不加重量，先把每个动作做标准。':'保持动作节奏，组间别刷太久手机。'};});
 return {id:'plan-'+p.goal+'-'+p.level+'-'+p.place+'-'+p.days,profile:p,week:week};}
+
+/* === v1.4 经典五日分化模板 (图片版，纯函数，无网络) === */
+var CLASSIC5=[
+{day:0,focus:'back',title:'背部 · 整体背厚度',ids:['lat_pulldown','seated_row','db_row','straight_arm_pushdown']},
+{day:1,focus:'chest',title:'胸部 · 整体胸厚度',ids:['bb_bench','incline_db','cable_fly','dip']},
+{day:2,focus:'shoulder',title:'肩部 · 三角肌全束',ids:['db_shoulder_press','lateral_raise','rear_delt_fly','face_pull']},
+{day:3,focus:'arm',title:'手臂 · 肱二头/肱三头',ids:['cable_pushdown','single_arm_pushdown','db_curl','hammer_curl']},
+{day:4,focus:'leg',title:'臀腿 · 下肢底盘',ids:['bb_squat','bulgarian_split','rdl','leg_extension']}
+];
+var CLASSIC5_SAFE={bb_squat:'goblet_squat',rdl:'leg_curl'};
+var CLASSIC5_TIP={back:'先沉肩胛再拉，感受背阔发力，别用腰甩。',chest:'肩胛贴凳，下放到胸线，推起不锁死手肘。',shoulder:'轻重量先找三角肌发力，斜方肌别抢戏。',arm:'大臂夹紧固定，只动前臂，顶端停一秒。',leg:'膝盖对准脚尖，动作全程慢，别弹震。'};
+function generateClassic5(raw,lib){var p=validateProfile(raw),list=lib||E,goal=goalById(p.goal);
+var isNew=p.level==='new';var sets=isNew?3:goal.sets,reps=isNew?'10-12':goal.reps,rest=isNew?75:goal.rest;
+var downgraded=false;
+var week=WEEKDAY.map(function(name,d){var slot=null;for(var i=0;i<CLASSIC5.length;i++)if(CLASSIC5[i].day===d)slot=CLASSIC5[i];
+if(!slot)return {day:d,weekday:name,rest:true,title:'休息 / 主动恢复',focus:null,items:[],note:'散步 20 分钟或做 10 分钟拉伸，帮助恢复。'};
+var items=[];slot.ids.forEach(function(id,i){var use=id;if(isNew&&CLASSIC5_SAFE[id]){use=CLASSIC5_SAFE[id];downgraded=true;}if(exById(use,list))items.push({exId:use,order:items.length,sets:sets,reps:reps,rest:rest});});
+return {day:d,weekday:name,rest:false,title:slot.title,focus:slot.focus,items:items,note:CLASSIC5_TIP[slot.focus]};});
+return {id:'classic5-'+p.goal+'-'+p.level+'-'+p.place,profile:p,week:week,tpl:'classic5',gymOnly:p.place!=='gym',downgraded:downgraded};}
 function pad2(n){return n<10?'0'+n:''+n;}
 function dateKey(d){var x=d?new Date(d):new Date();return x.getFullYear()+'-'+pad2(x.getMonth()+1)+'-'+pad2(x.getDate());}
 function weekdayIndex(d){var x=d?new Date(d):new Date();return (x.getDay()+6)%7;}
@@ -116,5 +138,5 @@ s.sessions=Array.isArray(raw.sessions)?raw.sessions.filter(function(x){return x&
 s.weights=Array.isArray(raw.weights)?raw.weights.filter(function(x){return x&&x.date&&!isNaN(Number(x.kg));}):[];
 if(raw.settings&&typeof raw.settings==='object')s.settings.restSec=clampInt(raw.settings.restSec,15,300,60);
 return s;}
-return {GROUPS:GROUPS,GOALS:GOALS,LEVELS:LEVELS,PLACES:PLACES,WEEKDAY:WEEKDAY,SPLITS:SPLITS,FOCUS_NAME:FOCUS_NAME,EXERCISES:E,EX_BY_ID:EX_BY_ID,equipKeys:equipKeys,levelName:levelName,inputMode:inputMode,needsWeight:needsWeight,demoOf:demoOf,prepOf:prepOf,planDisclaimer:planDisclaimer,validateProfile:validateProfile,generatePlan:generatePlan,pickExercises:pickExercises,goalById:goalById,groupById:groupById,exById:exById,dateKey:dateKey,weekdayIndex:weekdayIndex,isoWeekStart:isoWeekStart,volumeOf:volumeOf,streakOf:streakOf,weeklyVolume:weeklyVolume,weeklySets:weeklySets,lastLift:lastLift,escapeHtml:escapeHtml,clampInt:clampInt,emptyState:emptyState,normalizeState:normalizeState};
+return {GROUPS:GROUPS,GOALS:GOALS,LEVELS:LEVELS,PLACES:PLACES,WEEKDAY:WEEKDAY,SPLITS:SPLITS,FOCUS_NAME:FOCUS_NAME,EXERCISES:E,EX_BY_ID:EX_BY_ID,equipKeys:equipKeys,levelName:levelName,inputMode:inputMode,needsWeight:needsWeight,demoOf:demoOf,prepOf:prepOf,planDisclaimer:planDisclaimer,validateProfile:validateProfile,generatePlan:generatePlan,generateClassic5:generateClassic5,pickExercises:pickExercises,goalById:goalById,groupById:groupById,exById:exById,dateKey:dateKey,weekdayIndex:weekdayIndex,isoWeekStart:isoWeekStart,volumeOf:volumeOf,streakOf:streakOf,weeklyVolume:weeklyVolume,weeklySets:weeklySets,lastLift:lastLift,escapeHtml:escapeHtml,clampInt:clampInt,emptyState:emptyState,normalizeState:normalizeState};
 });
